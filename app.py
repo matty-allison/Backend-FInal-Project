@@ -1,6 +1,7 @@
 #imported modules used for this app
 import sqlite3
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from flask_mail import Mail, Message
 import cloudinary
 import cloudinary.uploader
@@ -62,6 +63,7 @@ def image_convert():
 
 app = Flask(__name__)
 #email building
+CORS(app)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USERNAME'] = 'matthewatwork18@gmail.com'
@@ -70,16 +72,6 @@ app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 
 mail = Mail(app)
-
-#route to send email
-@app.route('/send-email/', methods=["GET"])
-def sendmail():
-    with sqlite3.connect('sneakeromatic.db'):
-        email = request.json['email']
-        msg = Message('Good day new user', sender='matthewatwork18@gmail.com', recipients=[email])
-        msg.body = "WELCOME, Thank you for signing up to Sneakeromatic, we are happy to have and hope you buy from our store we have a wide range of sneakers, a pair for everyone is our moto. Leave a review on our website it helps us with customer satisfaction."
-        msg.send(msg)
-
 
 # first route to register new users
 @app.route('/sign-up/', methods=["POST"])
@@ -102,39 +94,12 @@ def signUp():
                 conn.commit()
                 confirmation["message"] = "User registered successfully"
                 confirmation["status_code"] = 200
+                msg = Message('Good day new user', sender='matthewatwork18@gmail.com', recipients=[email])
+                msg.body = "WELCOME, Thank you for signing up to Sneakeromatic, we are happy to have and hope you buy from our store we have a wide range of sneakers, a pair for everyone is our moto. Leave a review on our website it helps us with customer satisfaction."
+                msg.send(msg)
     except ValueError:
         if request.method != "POST":
             return
-    finally:
-        return confirmation
-
-@app.route('/log-in/')
-def logIn():
-    confirmation = {}
-    try:
-        with sqlite3.connect("sneakeromatic.db"):
-            name = request.json['name']
-            password = request.json['password']
-
-            if name != name:
-                confirmation["message"] = "Name is invalid"
-                confirmation["status_code"] = 400
-            elif name == name:
-                confirmation["message"] = "Name is valid"
-                confirmation["status_code"] = 200
-            if password != password:
-                confirmation["message"] = "password is invalid"
-                confirmation["status_code"] = 400
-            elif password == password:
-                confirmation["message"] = "Name is valid"
-                confirmation["status_code"] = 200
-    except  ValueError:
-        if name is None:
-            confirmation["message"] = "you have not registered"
-            confirmation["status_code"] = 200
-        if password is None:
-            confirmation["message"] = "You have not registered"
-            confirmation["status_code"] = 200
     finally:
         return confirmation
 
@@ -149,15 +114,17 @@ def add():
             sneaker_brand = request.json['sneaker_brand']
             sneaker_description = request.json['sneaker_description']
             sneaker_price = request.json['sneaker_price']
+            sneaker_image = image_convert()
+
 
             with sqlite3.connect("sneakeromatic.db") as conn:
                 cursor = conn.cursor()
                 cursor.execute("INSERT INTO sneakers("
                                "sneaker_name,"
-                               "sneaker_brand"
+                               "sneaker_brand,"
                                "sneaker_description,"
                                "sneaker_price,"
-                               "sneaker_image) VALUES (?, ?, ?, ?)", (sneaker_name, sneaker_brand, sneaker_description, sneaker_price, image_convert()))
+                               "sneaker_image) VALUES (?, ?, ?, ?, ?)", (sneaker_name, sneaker_brand, sneaker_description, sneaker_price, sneaker_image))
                 conn.commit()
                 confirmation["message"] = "sneaker add successfully"
                 confirmation["status_code"] = 200
@@ -181,8 +148,8 @@ def add_review():
             with sqlite3.connect("sneakeromatic.db") as conn:
                 cursor = conn.cursor()
                 cursor.execute("INSERT INTO reviews("
-                               "sneaker_name,"
-                               "sneaker_brand) VALUES (?, ?)", (review_name, review))
+                               "review_name,"
+                               "review) VALUES (?, ?)", (review_name, review))
                 conn.commit()
                 confirmation["message"] = "review add successfully"
                 confirmation["status_code"] = 200
