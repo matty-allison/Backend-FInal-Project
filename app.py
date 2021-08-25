@@ -26,6 +26,7 @@ def createProductTable():
         conn.execute("CREATE TABLE IF NOT EXISTS sneakers(sneaker_id INTEGER PRIMARY KEY AUTOINCREMENT,"
                      "sneaker_name TEXT NOT NULL,"
                      "sneaker_brand TEXT NOT NULL,"
+                     "gender TEXT NOT NULL,"
                      "sneaker_description TEXT NOT NULL,"
                      "sneaker_price TEXT NOT NULL,"
                      "sneaker_image TEXT NOT NULL)")
@@ -112,6 +113,7 @@ def add():
 
             sneaker_name = request.json['sneaker_name']
             sneaker_brand = request.json['sneaker_brand']
+            gender = request.json['gender']
             sneaker_description = request.json['sneaker_description']
             sneaker_price = request.json['sneaker_price']
             sneaker_image = image_convert()
@@ -122,9 +124,10 @@ def add():
                 cursor.execute("INSERT INTO sneakers("
                                "sneaker_name,"
                                "sneaker_brand,"
+                               "gender,"
                                "sneaker_description,"
                                "sneaker_price,"
-                               "sneaker_image) VALUES (?, ?, ?, ?, ?)", (sneaker_name, sneaker_brand, sneaker_description, sneaker_price, sneaker_image))
+                               "sneaker_image) VALUES (?, ?, ?, ?, ?, ?)", (sneaker_name, sneaker_brand, gender, sneaker_description, sneaker_price, sneaker_image))
                 conn.commit()
                 confirmation["message"] = "sneaker add successfully"
                 confirmation["status_code"] = 200
@@ -227,6 +230,7 @@ def edit_sneaker(sneaker_id):
             with sqlite3.connect('sneakeromatic.db') as conn:
                 sneaker_name = request.json['sneaker_name']
                 sneaker_brand = request.json['sneaker_brand']
+                gender = request.json['gender']
                 sneaker_description = request.json['sneaker_description']
                 sneaker_price = request.json['sneaker_price']
                 sneaker_image = request.json['sneaker_image']
@@ -248,6 +252,15 @@ def edit_sneaker(sneaker_id):
                     conn.commit()
 
                     confirmation["message"] = "Sneaker brand changed successfully"
+                    confirmation["status_code"] = 200
+
+                if gender is not None:
+                    put_data["gender"] = gender
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE sneakers SET gender=? WHERE sneaker_id=?", (put_data["gender"], sneaker_id))
+                    conn.commit()
+
+                    confirmation["message"] = "Sneaker gender changed successfully"
                     confirmation["status_code"] = 200
 
                 if sneaker_description is not None:
