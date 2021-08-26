@@ -103,6 +103,30 @@ def signUp():
             return
     finally:
         return confirmation
+#login route
+@app.route('/login/', method=["PATCH"])
+def loginUser():
+    confirmation = {}
+
+    if request.method == 'PATCH':
+        name = request.json['name']
+        password = request.json['password']
+
+        with sqlite3.connect('sneakeromatic.db') as conn:
+            cursor = conn.cursor()
+            cursor.row_factory = sqlite3.Row
+            cursor.execute('SELECT * FROM users WHERE name=? and password=?', (name, password))
+            user = cursor.fetchall()
+            data = []
+
+            for a in user:
+                data.append({u: a[u] for u in a.keys()})
+
+            confirmation['message'] = 'Account' + str(name) + 'collected'
+            confirmation['status_code'] = 200g
+            confirmation['data'] = data
+
+        return confirmation
 
 # route for adding new sneaker
 @app.route('/add-sneaker/', methods=["POST"])
