@@ -123,7 +123,7 @@ def loginUser():
                 data.append({u: a[u] for u in a.keys()})
 
             confirmation['message'] = 'Account' + str(name) + 'collected'
-            confirmation['status_code'] = 200g
+            confirmation['status_code'] = 200
             confirmation['data'] = data
 
         return confirmation
