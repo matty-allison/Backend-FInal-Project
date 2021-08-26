@@ -103,8 +103,9 @@ def signUp():
             return
     finally:
         return confirmation
+
 #login route
-@app.route('/login/', method=["PATCH"])
+@app.route('/login/', methods=["PATCH"])
 def loginUser():
     confirmation = {}
 
