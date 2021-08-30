@@ -61,6 +61,11 @@ def image_convert():
             app.logger.info(upload_result)
             return upload_result['url']
 
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
 
 app = Flask(__name__)
 #email building
@@ -114,8 +119,8 @@ def loginUser():
         password = request.json['password']
 
         with sqlite3.connect('sneakeromatic.db') as conn:
+            conn.row_factory = dict_factory
             cursor = conn.cursor()
-            cursor.row_factory = sqlite3.Row
             cursor.execute('SELECT * FROM users WHERE name=? and password=?', (name, password))
             user = cursor.fetchall()
             data = []
