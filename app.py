@@ -122,15 +122,11 @@ def loginUser():
             conn.row_factory = dict_factory
             cursor = conn.cursor()
             cursor.execute('SELECT * FROM users WHERE name=? and password=?', (name, password))
-            user = cursor.fetchall()
-            data = []
-
-            for a in user:
-                data.append({u: a[u] for u in a.keys()})
+            user = cursor.fetchone()
 
             confirmation['message'] = 'Account' + str(name) + 'collected'
             confirmation['status_code'] = 200
-            confirmation['data'] = data
+            confirmation['data'] = user
 
         return confirmation
 
