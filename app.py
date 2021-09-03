@@ -87,9 +87,9 @@ def signUp():
 
         if request.method == "POST":
 
-            name = request.form['name']
-            email = request.form['email']
-            password = request.form['password']
+            name = request.json['name']
+            email = request.json['email']
+            password = request.json['password']
 
             with sqlite3.connect("sneakeromatic.db") as conn:
                 cursor = conn.cursor()
